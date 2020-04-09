@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <!-- three.js library -->
-<script src='vendor/three.js/build/three.min.js'></script>
+<script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/three.min.js'></script>
 <!-- ar.js -->
-<script src="../build/ar.js"></script>
-<script>THREEx.ArToolkitContext.baseURL = '../'</script>
+<script src="https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/ar.js"></script>
+
+<!--<script>THREEx.ArToolkitContext.baseURL = '../'</script>-->
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
 	<a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a> - three.js camera transform
 	<br/>
 	Contact me any time at <a href='https://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
-</div><script>
+</div>
+	<script>
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Init
 	//////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +85,7 @@
 
 	// create atToolkitContext
 	var arToolkitContext = new THREEx.ArToolkitContext({
-		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+		cameraParametersUrl: 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/camera_para.dat',
 		detectionMode: 'mono',
 	})
 	// initialize it
@@ -109,7 +111,7 @@
 	// init controls for camera
 	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 		type : 'pattern',
-		patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.bosch',
+		patternUrl : 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/testbosch.patt',
 		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
 		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
 		changeMatrixMode: 'cameraTransformMatrix'
