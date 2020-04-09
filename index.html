@@ -139,6 +139,12 @@
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.z	= 0.5
 	scene.add( mesh );
+		
+	var loader = new GLTFLoader();
+	loader.load( 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb', function ( gltf ) {
+
+	model = gltf.scene;
+	scene.add( model );
 
 	onRenderFcts.push(function(delta){
 		mesh.rotation.x += Math.PI*delta
