@@ -162,7 +162,7 @@
 	var threeGLTFLoader = new THREE.GLTFLoader();
         var model;
 
-        threeGLTFLoader.load("https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb", function (gltf) 
+        threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb', function (gltf) 
         {
             model = gltf.scene.children[0];
             model.name = 'RobotExpressive';
@@ -206,9 +206,29 @@
                 renderer.render(scene, camera);
             };
 		//model.scale.set(0.025,0.025,0.025);
-            //requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
 	
 	}
 	);
+		
+		// render the scene
+	onRenderFcts.push(function(){
+		renderer.render( scene, camera );
+	})
+
+	// run the rendering loop
+	var lastTimeMsec= null
+	requestAnimationFrame(function animate(nowMsec){
+		// keep looping
+		requestAnimationFrame( animate );
+		// measure time
+		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		lastTimeMsec	= nowMsec
+		// call each update function
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct(deltaMsec/1000, nowMsec/1000)
+		})
+	})
 		
 </script></body>
