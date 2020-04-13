@@ -179,51 +179,51 @@
             model.position.z = mesh.position.z;
             model.position.x = 0;
             model.position.y = 0;
-		model .scale.set(1,1,1);
+		//model .scale.set(1,1,1);
 		
-		var animate = function() {
-                requestAnimationFrame(animate);
+		//var animate = function() {
+                //requestAnimationFrame(animate);
 
-                if (mixers.length > 0) {
-                    for (var i = 0; i < mixers.length; i++) {
-                        mixers[i].update(clock.getDelta());
-                    }
-                }
+                //if (mixers.length > 0) {
+                  //  for (var i = 0; i < mixers.length; i++) {
+                    //    mixers[i].update(clock.getDelta());
+                   // }
+                //}
 
-                if (!arToolkitSource.ready) {
-                    return;
-                }
+                //if (!arToolkitSource.ready) {
+                  //  return;
+                //}
 
-                arToolkitContext.update( arToolkitSource.domElement )
+                //arToolkitContext.update( arToolkitSource.domElement )
 
                 // update scene.visible if the marker is seen
-                scene.visible = camera.visible;
+                //scene.visible = camera.visible;
 
-                renderer.render(scene, camera);
-            };
+                //renderer.render(scene, camera);
+           // };
 
-            requestAnimationFrame(animate);
+           // requestAnimationFrame(animate);
 	}
 	);
 		
 		// render the scene
-	//onRenderFcts.push(function(){
-	//	renderer.render( scene, camera );
-	//})
+	onRenderFcts.push(function(){
+		renderer.render( scene, camera );
+	})
 
 	// run the rendering loop
-	//var lastTimeMsec= null
-	//requestAnimationFrame(function animate(nowMsec){
+	var lastTimeMsec= null
+	requestAnimationFrame(function animate(nowMsec){
 		// keep looping
-	//	requestAnimationFrame( animate );
+		requestAnimationFrame( animate );
 		// measure time
-	//	lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-	//	var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-	//	lastTimeMsec	= nowMsec
+		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		lastTimeMsec	= nowMsec
 		// call each update function
-	//	onRenderFcts.forEach(function(onRenderFct){
-	//		onRenderFct(deltaMsec/1000, nowMsec/1000)
-	//	})
-	//})
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct(deltaMsec/1000, nowMsec/1000)
+		})
+	})
 		
 </script></body>
