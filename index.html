@@ -179,7 +179,7 @@
             model.position.z = 0;
             model.position.x = 0;
             model.position.y = 0;
-	    model.scale.set(0.025,0.025,0.025);
+	    
 		
 	//////////////////////////////////////////////////////////////////////////////////
             //		render the whole thing on the page
@@ -205,7 +205,7 @@
 
                 renderer.render(scene, camera);
             };
-
+		model.scale.set(0.025,0.025,0.025);
             requestAnimationFrame(animate);
 	
 	}
