@@ -179,7 +179,29 @@
             model.position.z = mesh.position.z;
             model.position.x = 0;
             model.position.y = 0;
-	
+		
+		var animate = function() {
+                requestAnimationFrame(animate);
+
+                if (mixers.length > 0) {
+                    for (var i = 0; i < mixers.length; i++) {
+                        mixers[i].update(clock.getDelta());
+                    }
+                }
+
+                if (!arToolkitSource.ready) {
+                    return;
+                }
+
+                arToolkitContext.update( arToolkitSource.domElement )
+
+                // update scene.visible if the marker is seen
+                scene.visible = camera.visible;
+
+                renderer.render(scene, camera);
+            };
+
+            requestAnimationFrame(animate);
 	}
 	);
 		
