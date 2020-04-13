@@ -142,17 +142,39 @@
 	mesh.position.z	= 0.5
 	scene.add( mesh );
 		
+	//var threeGLTFLoader = new THREE.GLTFLoader();
+	//threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb', function ( gltf ) 
+	//	{
+	//	model = gltf.scene;
+	//	scene.add( model );
+	//	}, 
+	//	undefined, function ( error ) 
+	//	{
+	//	console.error( error ); 
+	//	} );-->
+		
 	var threeGLTFLoader = new THREE.GLTFLoader();
-	threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb', function ( gltf ) 
-		{
-		model = gltf.scene;
-		scene.add( model );
-		}, 
-		undefined, function ( error ) 
-		{
-		console.error( error ); 
-		} );
+        var model;
 
+        threeGLTFLoader.load("https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb", function (gltf) 
+        {
+            model = gltf.scene.children[0];
+            model.name = 'Flamingo';
+
+            var animation = gltf.animations[0];
+            var mixer = new THREE.AnimationMixer(model);
+            mixers.push(mixer);
+            var action = mixer.clipAction(animation);
+            action.play();
+
+           // root.matrixAutoUpdate = false;
+            scene.add(model);
+
+            model.position.z = 0;
+            model.position.x = 100;
+            model.position.y = 100;
+	
+	}
 	onRenderFcts.push(function(delta){
 		mesh.rotation.x += Math.PI*delta
 	})
