@@ -180,23 +180,12 @@
             model.position.x = 0;
             model.position.y = 0;
 	    model.scale.set(0.025,0.025,0.025);
-	
-	
-	}
-	);
 		
-	
-
 	//////////////////////////////////////////////////////////////////////////////////
-	//		render the whole thing on the page
-	//////////////////////////////////////////////////////////////////////////////////
+            //		render the whole thing on the page
+            //////////////////////////////////////////////////////////////////////////////////
 
-	// render the scene
-	onRenderFcts.push(function(){
-		renderer.render( scene, camera );
-	})
-	
-		var animate = function() {
+            var animate = function() {
                 requestAnimationFrame(animate);
 
                 if (mixers.length > 0) {
@@ -204,19 +193,22 @@
                         mixers[i].update(clock.getDelta());
                     }
                 }
+
+                if (!arToolkitSource.ready) {
+                    return;
+                }
+
+                arToolkitContext.update( arToolkitSource.domElement )
+
+                // update scene.visible if the marker is seen
+                scene.visible = camera.visible;
+
+                renderer.render(scene, camera);
             };
-	// run the rendering loop
-	var lastTimeMsec= null
-	requestAnimationFrame(function animate(nowMsec){
-		// keep looping
-		requestAnimationFrame( animate );
-		// measure time
-		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-		lastTimeMsec	= nowMsec
-		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
-			onRenderFct(deltaMsec/1000, nowMsec/1000)
-		})
-	})
+
+            requestAnimationFrame(animate);
+	
+	}
+	);
+		
 </script></body>
