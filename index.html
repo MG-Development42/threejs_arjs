@@ -172,8 +172,8 @@
             var action = mixer.clipAction(animation);
             action.play();
 
-            root.matrixAutoUpdate = false;
-            root.add(model);
+            scene.matrixAutoUpdate = false;
+            scene.add(model);
 
             model.position.z = 0;
             model.position.x = 100;
