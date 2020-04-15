@@ -356,7 +356,7 @@
 
 			function animate() {
 
-				var dt = clock.getDelta();
+				var dt = new THREE.Clock().getDelta();
 
 				if ( mixer ) mixer.update( dt );
 
