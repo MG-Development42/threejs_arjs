@@ -55,6 +55,15 @@
         <div class="arjs-loader-spinner"></div>
     </div>
     <script>
+	    
+	    
+	    import Stats from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/stats.module.js';
+	    import { GUI } from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/dat.gui.module.js';
+	    var container, stats, clock, gui, mixer, actions, activeAction, previousAction;
+			var camera, scene, renderer, model, face;
+	    
+			var api = { state: 'Walking' };
+			animate();
         //////////////////////////////////////////////////////////////////////////////////
         //		Init
         //////////////////////////////////////////////////////////////////////////////////
