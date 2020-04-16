@@ -9,7 +9,7 @@
 <script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/ar.js'></script>
 
 <script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/stats.min.js'></script>
-<script type="module" src ='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/dat.gui.module.js' > import { GUI } from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/dat.gui.min.js';</script>
+<script src = 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/dat.gui.min.js'></script>
 
 <!--<script>THREEx.ArToolkitContext.baseURL = '../'</script>-->
 
@@ -233,7 +233,7 @@
 				var states = [ 'Idle', 'Walking', 'Running', 'Dance', 'Death', 'Sitting', 'Standing' ];
 				var emotes = [ 'Jump', 'Yes', 'No', 'Wave', 'Punch', 'ThumbsUp' ];
 
-				gui = new GUI.GUI();
+				gui = new dat.GUI();
 
 				mixer = new THREE.AnimationMixer( model );
 
