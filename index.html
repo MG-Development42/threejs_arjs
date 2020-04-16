@@ -1,171 +1,131 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
 <!-- three.js library -->
 <script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/three.min.js'></script>
-<!--Gltf Loader-->
+<!-- three.js load GLTF -->
 <script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/GLTFLoader.js'></script>
 <!-- ar.js -->
-<script src="https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/ar.js"></script>
+<script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/ar.js'></script>
 
 <!--<script>THREEx.ArToolkitContext.baseURL = '../'</script>-->
 
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
-	<a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a> - three.js camera transform
-	<br/>
-	Contact me any time at <a href='https://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
-</div>
-	<script>
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Init
-	//////////////////////////////////////////////////////////////////////////////////
+<body>
+    
+    <script>
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Init
+        //////////////////////////////////////////////////////////////////////////////////
 
-	// init renderer
-	var renderer	= new THREE.WebGLRenderer({
-		antialias: true,
-		alpha: true
-	});
-		var mixers = [];
-		var clock = new THREE.Clock();
-	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-	renderer.setSize( 640, 480 );
-	renderer.domElement.style.position = 'absolute'
-	renderer.domElement.style.top = '0px'
-	renderer.domElement.style.left = '0px'
-	document.body.appendChild( renderer.domElement );
+        var renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            precision: 'mediump',
+        });
 
-	// array of functions for the rendering loop
-	var onRenderFcts= [];
+        var clock = new THREE.Clock();
 
-	// init scene and camera
-	var scene	= new THREE.Scene();
+        var mixers = [];
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Initialize a basic camera
-	//////////////////////////////////////////////////////////////////////////////////
+        renderer.setPixelRatio(window.devicePixelRatio);
 
-	// Create a camera
-	var camera = new THREE.Camera();
-	scene.add(camera);
+        renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.domElement.style.position = 'absolute'
+        renderer.domElement.style.top = '0px'
+        renderer.domElement.style.left = '0px'
+        document.body.appendChild( renderer.domElement );
 
-	////////////////////////////////////////////////////////////////////////////////
-	//          handle arToolkitSource
-	////////////////////////////////////////////////////////////////////////////////
+        // init scene and camera
+        var scene = new THREE.Scene();
 
-	var arToolkitSource = new THREEx.ArToolkitSource({
-		// to read from the webcam
-		sourceType : 'webcam',
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Initialize a basic camera
+        //////////////////////////////////////////////////////////////////////////////////
 
-		// // to read from an image
-		// sourceType : 'image',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',
+        // Create a camera
+        var camera = new THREE.Camera();
+        scene.add(camera);
 
-		// to read from a video
-		// sourceType : 'video',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',
-	})
+        var light = new THREE.AmbientLight(0xffffff);
+        scene.add(light);
 
-	arToolkitSource.init(function onReady(){
-        setTimeout(() => {
+        ////////////////////////////////////////////////////////////////////////////////
+        //          handle arToolkitSource
+        ////////////////////////////////////////////////////////////////////////////////
+
+        var arToolkitSource = new THREEx.ArToolkitSource({
+            sourceType : 'webcam',
+            sourceWidth: 480,
+            sourceHeight: 640,
+        })
+
+        arToolkitSource.init(function onReady(){
+            // use a resize to fullscreen mobile devices
+            setTimeout(function() {
+                onResize()
+            }, 1000);
+        })
+
+        // handle resize
+        window.addEventListener('resize', function(){
             onResize()
-        }, 2000);
-	})
+        })
 
-	// handle resize
-	window.addEventListener('resize', function(){
-		onResize()
-    })
+        function onResize(){
+            arToolkitSource.onResizeElement()
+            arToolkitSource.copyElementSizeTo(renderer.domElement)
+            if( arToolkitContext.arController !== null ){
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+            }
+        }
 
-	function onResize(){
-		arToolkitSource.onResizeElement()
-		arToolkitSource.copyElementSizeTo(renderer.domElement)
-		if( arToolkitContext.arController !== null ){
-			arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-		}
-	}
-	////////////////////////////////////////////////////////////////////////////////
-	//          initialize arToolkitContext
-	////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        //          initialize arToolkitContext
+        ////////////////////////////////////////////////////////////////////////////////
 
+        // create atToolkitContext
+        var arToolkitContext = new THREEx.ArToolkitContext({
+            detectionMode: 'mono',
+            canvasWidth: 480,
+            canvasHeight: 640,
+        }, {
+            sourceWidth: 480,
+            sourceHeight: 640,
+        })
 
-	// create atToolkitContext
-	var arToolkitContext = new THREEx.ArToolkitContext({
-		cameraParametersUrl: 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/camera_para.dat',
-		detectionMode: 'mono',
-	})
-	// initialize it
-	arToolkitContext.init(function onCompleted(){
-		// copy projection matrix to camera
-		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-	})
+        // initialize it
+        arToolkitContext.init(function onCompleted(){
+            // copy projection matrix to camera
+            camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+        })
 
-	// update artoolkit on every frame
-	onRenderFcts.push(function(){
-		if( arToolkitSource.ready === false )	return
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Create a ArMarkerControls
+        ////////////////////////////////////////////////////////////////////////////////
 
-		arToolkitContext.update( arToolkitSource.domElement )
+        // init controls for camera
+        var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+            type : 'nft',
+            descriptorsUrl : 'data/dataNFT/pinball',
+            changeMatrixMode: 'cameraTransformMatrix'
+        })
 
-		// update scene.visible if the marker is seen
-		scene.visible = camera.visible
-	})
+        scene.visible = false
 
-	////////////////////////////////////////////////////////////////////////////////
-	//          Create a ArMarkerControls
-	////////////////////////////////////////////////////////////////////////////////
+        var root = new THREE.Object3D();
+        scene.add(root);
 
-	// init controls for camera
-	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-		type : 'pattern',
-		patternUrl : 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/testbosch.patt',
-		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-		changeMatrixMode: 'cameraTransformMatrix'
-	})
-	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-	scene.visible = false
+        //////////////////////////////////////////////////////////////////////////////////
+        //		add an object in the scene
+        //////////////////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		add an object in the scene
-	//////////////////////////////////////////////////////////////////////////////////
-
-	// add a torus knot
-	var geometry	= new THREE.CubeGeometry(1,1,1);
-	var material	= new THREE.MeshNormalMaterial({
-		transparent : true,
-		opacity: 0.5,
-		side: THREE.DoubleSide
-	});
-	var mesh	= new THREE.Mesh( geometry, material );
-	mesh.position.z	= geometry.parameters.height/2
-	scene.add( mesh );
-
-	//var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,64,16);
-	//var material	= new THREE.MeshNormalMaterial();
-	//var mesh	= new THREE.Mesh( geometry, material );
-	//mesh.position.z	= 0.5
-	//scene.add( mesh ); 
-		
-	//onRenderFcts.push(function(delta){
-	//	mesh.rotation.x += Math.PI*delta
-	//	})
-		
-	//var threeGLTFLoader = new THREE.GLTFLoader();
-	//threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb', function ( gltf ) 
-	//	{
-	//	model = gltf.scene;
-	//	scene.add( model );
-	//	}, 
-	//	undefined, function ( error ) 
-	//	{
-	//	console.error( error ); 
-	//	} );-->
-		
-	var threeGLTFLoader = new THREE.GLTFLoader();
+        var threeGLTFLoader = new THREE.GLTFLoader();
         var model;
 
-        threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb', function (gltf) 
-        {
+        threeGLTFLoader.load("https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb", function (gltf) {
             model = gltf.scene.children[0];
-            model.name = 'RobotExpressive';
+            model.name = 'Flamingo';
 
             var animation = gltf.animations[0];
             var mixer = new THREE.AnimationMixer(model);
@@ -173,25 +133,29 @@
             var action = mixer.clipAction(animation);
             action.play();
 
-            scene.matrixAutoUpdate = false;
-            scene.add(model);
+            root.matrixAutoUpdate = false;
+            root.add(model);
 
             model.position.z = 0;
             model.position.x = 0;
             model.position.y = 0;
-	   model .scale.set(0.05,0.05,0.05);
-		
-		var animate = function() {
+	    model.scale.set(0.005,0.005,0.005);
+
+            //////////////////////////////////////////////////////////////////////////////////
+            //		render the whole thing on the page
+            //////////////////////////////////////////////////////////////////////////////////
+
+            var animate = function() {
                 requestAnimationFrame(animate);
 
                 if (mixers.length > 0) {
                     for (var i = 0; i < mixers.length; i++) {
-                       mixers[i].update(clock.getDelta());
+                        mixers[i].update(clock.getDelta());
                     }
                 }
 
                 if (!arToolkitSource.ready) {
-                   return;
+                    return;
                 }
 
                 arToolkitContext.update( arToolkitSource.domElement )
@@ -203,9 +167,7 @@
             };
 
             requestAnimationFrame(animate);
-	}
-	);
-		
-	
-		
-</script></body>
+        }
+    );
+    </script>
+</body>
