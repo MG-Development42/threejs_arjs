@@ -176,8 +176,8 @@
         var threeGLTFLoader = new THREE.GLTFLoader();
         var model;
 
-        threeGLTFLoader.load("https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/Flamingo.glb", function (gltf) {
-            model = gltf.scene;
+        threeGLTFLoader.load('https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb', function (gltf) {
+            model = gltf.scene.children[0];
             //model.name = 'Flamingo';
 
            // var animation = gltf.animations[0];
@@ -192,7 +192,7 @@
             model.position.z = 0;
             model.position.x = 0;
             model.position.y = 0;
-	    model.scale.set(0.005,0.005,0.005);
+	    model.scale.set(1,1,1);
 		
 	createGUI( model, gltf.animations );
 		
