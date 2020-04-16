@@ -196,6 +196,10 @@
 		
 	createGUI( model, gltf.animations );
 		
+	}, undefined, function ( e ) {
+		console.error( e );
+
+    );
 	// stats
 	stats = new Stats();
 	document.body.appendChild( stats.domElement);
@@ -366,7 +370,6 @@
 				stats.update();
 
 			}
-		}
-    );
+		
     </script>
 </body>
