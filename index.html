@@ -1,176 +1,262 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<html lang="en">
+	<head>
+		<title>three.js webgl - skinning and morphing</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			body {
+				color: #222;
+			}
 
-<!-- three.js library -->
-<script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/three.min.js'></script>
-<!-- three.js load GLTF -->
-<script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/GLTFLoader.js'></script>
-<!-- ar.js -->
-<script src='https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/ar.js'></script>
+			a {
+				color: #2fa1d6;
+			}
 
-<!--<script>THREEx.ArToolkitContext.baseURL = '../'</script>-->
+			p {
+				max-width: 600px;
+				margin-left: auto;
+				margin-right: auto;
+				padding: 0 2em;
+			}
+		</style>
+	</head>
 
-<body>
-    
-    <script>
-        //////////////////////////////////////////////////////////////////////////////////
-        //		Init
-        //////////////////////////////////////////////////////////////////////////////////
+	<body>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - skinning and morphing<br />
+			<p>
+				The animation system allows clips to be played individually, looped, or crossfaded with other clips. This example shows a character looping in one of several base animation states, then transitioning smoothly to one-time actions. Facial expressions are controlled independently with morph targets.
+			</p>
+			Model by
+			<a href="https://www.patreon.com/quaternius" target="_blank" rel="noopener">Tomás Laulhé</a>,
+			modifications by <a href="https://donmccurdy.com/" target="_blank" rel="noopener">Don McCurdy</a>. CC0.<br />
+		</div>
 
-        var renderer = new THREE.WebGLRenderer({
-            antialias: true,
-            alpha: true,
-            precision: 'mediump',
-        });
+		<script type="module">
 
-        var clock = new THREE.Clock();
+			import * as THREE from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/three.min.js';
 
-        var mixers = [];
+			import Stats from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/stats.module.js';
+			import { GUI } from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/dat.gui.module.js';
 
-        renderer.setPixelRatio(window.devicePixelRatio);
+			import { GLTFLoader } from 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/GLTFLoader.js';
 
-        renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.domElement.style.position = 'absolute'
-        renderer.domElement.style.top = '0px'
-        renderer.domElement.style.left = '0px'
-        document.body.appendChild( renderer.domElement );
+			var container, stats, clock, gui, mixer, actions, activeAction, previousAction;
+			var camera, scene, renderer, model, face;
 
-        // init scene and camera
-        var scene = new THREE.Scene();
+			var api = { state: 'Walking' };
 
-        //////////////////////////////////////////////////////////////////////////////////
-        //		Initialize a basic camera
-        //////////////////////////////////////////////////////////////////////////////////
+			init();
+			animate();
 
-        // Create a camera
-        var camera = new THREE.Camera();
-        scene.add(camera);
+			function init() {
 
-        var light = new THREE.AmbientLight(0xffffff);
-        scene.add(light);
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //          handle arToolkitSource
-        ////////////////////////////////////////////////////////////////////////////////
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 100 );
+				camera.position.set( - 5, 3, 10 );
+				camera.lookAt( new THREE.Vector3( 0, 2, 0 ) );
 
-        var arToolkitSource = new THREEx.ArToolkitSource({
-            sourceType : 'webcam',
-            sourceWidth: 480,
-            sourceHeight: 640,
-        })
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xe0e0e0 );
+				scene.fog = new THREE.Fog( 0xe0e0e0, 20, 100 );
 
-        arToolkitSource.init(function onReady(){
-            // use a resize to fullscreen mobile devices
-            setTimeout(function() {
-                onResize()
-            }, 1000);
-        })
+				clock = new THREE.Clock();
 
-        // handle resize
-        window.addEventListener('resize', function(){
-            onResize()
-        })
+				// lights
 
-        function onResize(){
-            arToolkitSource.onResizeElement()
-            arToolkitSource.copyElementSizeTo(renderer.domElement)
-            if( arToolkitContext.arController !== null ){
-                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-            }
-        }
+				var light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				light.position.set( 0, 20, 0 );
+				scene.add( light );
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //          initialize arToolkitContext
-        ////////////////////////////////////////////////////////////////////////////////
+				light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 0, 20, 10 );
+				scene.add( light );
 
-        // create atToolkitContext
-        var arToolkitContext = new THREEx.ArToolkitContext({
-            detectionMode: 'mono',
-            canvasWidth: 480,
-            canvasHeight: 640,
-        }, {
-            sourceWidth: 480,
-            sourceHeight: 640,
-        })
+				// ground
 
-        // initialize it
-        arToolkitContext.init(function onCompleted(){
-            // copy projection matrix to camera
-            camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-        })
+				var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
+				mesh.rotation.x = - Math.PI / 2;
+				scene.add( mesh );
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //          Create a ArMarkerControls
-        ////////////////////////////////////////////////////////////////////////////////
+				var grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				grid.material.opacity = 0.2;
+				grid.material.transparent = true;
+				scene.add( grid );
 
-        // init controls for camera
-        var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-           type : 'pattern',
-		patternUrl : 'https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/testbosch.patt',
-		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-		changeMatrixMode: 'cameraTransformMatrix'
-	})
+				// model
 
+				var loader = new GLTFLoader();
+				loader.load( 'models/gltf/RobotExpressive/RobotExpressive.glb', function ( gltf ) {
 
-        scene.visible = false
+					model = gltf.scene;
+					scene.add( model );
 
-        var root = new THREE.Object3D();
-        scene.add(root);
+					createGUI( model, gltf.animations );
 
-        //////////////////////////////////////////////////////////////////////////////////
-        //		add an object in the scene
-        //////////////////////////////////////////////////////////////////////////////////
+				}, undefined, function ( e ) {
 
-        var threeGLTFLoader = new THREE.GLTFLoader();
-        var model;
+					console.error( e );
 
-        threeGLTFLoader.load("https://cors.x7.workers.dev/https://vannanmani42.github.io/threejs_arjs/RobotExpressive.glb", function (gltf) {
-            model = gltf.scene.children[0];
-            model.name = 'Flamingo';
+				} );
 
-            var animation = gltf.animations[0];
-            var mixer = new THREE.AnimationMixer(model);
-            mixers.push(mixer);
-            var action = mixer.clipAction(animation);
-            action.play();
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				container.appendChild( renderer.domElement );
 
-            root.matrixAutoUpdate = false;
-            root.add(model);
+				window.addEventListener( 'resize', onWindowResize, false );
 
-            model.position.z = 0;
-            model.position.x = 0;
-            model.position.y = 0;
-	    model.scale.set(0.5,0.5,0.5);
+				// stats
+				stats = new Stats();
+				container.appendChild( stats.dom );
 
-            //////////////////////////////////////////////////////////////////////////////////
-            //		render the whole thing on the page
-            //////////////////////////////////////////////////////////////////////////////////
+			}
 
-            var animate = function() {
-                requestAnimationFrame(animate);
+			function createGUI( model, animations ) {
 
-                if (mixers.length > 0) {
-                    for (var i = 0; i < mixers.length; i++) {
-                        mixers[i].update(clock.getDelta());
-                    }
-                }
+				var states = [ 'Idle', 'Walking', 'Running', 'Dance', 'Death', 'Sitting', 'Standing' ];
+				var emotes = [ 'Jump', 'Yes', 'No', 'Wave', 'Punch', 'ThumbsUp' ];
 
-                if (!arToolkitSource.ready) {
-                    return;
-                }
+				gui = new GUI();
 
-                arToolkitContext.update( arToolkitSource.domElement )
+				mixer = new THREE.AnimationMixer( model );
 
-                // update scene.visible if the marker is seen
-                scene.visible = camera.visible;
+				actions = {};
 
-                renderer.render(scene, camera);
-            };
+				for ( var i = 0; i < animations.length; i ++ ) {
 
-            requestAnimationFrame(animate);
-        }
-    );
-    </script>
-</body>
+					var clip = animations[ i ];
+					var action = mixer.clipAction( clip );
+					actions[ clip.name ] = action;
+
+					if ( emotes.indexOf( clip.name ) >= 0 || states.indexOf( clip.name ) >= 4 ) {
+
+						action.clampWhenFinished = true;
+						action.loop = THREE.LoopOnce;
+
+					}
+
+				}
+
+				// states
+
+				var statesFolder = gui.addFolder( 'States' );
+
+				var clipCtrl = statesFolder.add( api, 'state' ).options( states );
+
+				clipCtrl.onChange( function () {
+
+					fadeToAction( api.state, 0.5 );
+
+				} );
+
+				statesFolder.open();
+
+				// emotes
+
+				var emoteFolder = gui.addFolder( 'Emotes' );
+
+				function createEmoteCallback( name ) {
+
+					api[ name ] = function () {
+
+						fadeToAction( name, 0.2 );
+
+						mixer.addEventListener( 'finished', restoreState );
+
+					};
+
+					emoteFolder.add( api, name );
+
+				}
+
+				function restoreState() {
+
+					mixer.removeEventListener( 'finished', restoreState );
+
+					fadeToAction( api.state, 0.2 );
+
+				}
+
+				for ( var i = 0; i < emotes.length; i ++ ) {
+
+					createEmoteCallback( emotes[ i ] );
+
+				}
+
+				emoteFolder.open();
+
+				// expressions
+
+				face = model.getObjectByName( 'Head_2' );
+
+				var expressions = Object.keys( face.morphTargetDictionary );
+				var expressionFolder = gui.addFolder( 'Expressions' );
+
+				for ( var i = 0; i < expressions.length; i ++ ) {
+
+					expressionFolder.add( face.morphTargetInfluences, i, 0, 1, 0.01 ).name( expressions[ i ] );
+
+				}
+
+				activeAction = actions[ 'Walking' ];
+				activeAction.play();
+
+				expressionFolder.open();
+
+			}
+
+			function fadeToAction( name, duration ) {
+
+				previousAction = activeAction;
+				activeAction = actions[ name ];
+
+				if ( previousAction !== activeAction ) {
+
+					previousAction.fadeOut( duration );
+
+				}
+
+				activeAction
+					.reset()
+					.setEffectiveTimeScale( 1 )
+					.setEffectiveWeight( 1 )
+					.fadeIn( duration )
+					.play();
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+				var dt = clock.getDelta();
+
+				if ( mixer ) mixer.update( dt );
+
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+
+				stats.update();
+
+			}
+
+		</script>
+
+	</body>
+</html>
