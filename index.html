@@ -34,7 +34,7 @@
             				precision: 'mediump', } );
 				
 				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+				renderer.setClearColor(new THREE.Color('lightgrey'), 0.5)
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.outputEncoding = THREE.sRGBEncoding;
 				container.appendChild( renderer.domElement );
@@ -289,14 +289,14 @@
 
 			}
 
-			function onWindowResize() {
+			//function onWindowResize() {
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+				//camera.aspect = window.innerWidth / window.innerHeight;
+				//camera.updateProjectionMatrix();
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				//renderer.setSize( window.innerWidth, window.innerHeight );
 
-			}
+			//}
 
 			//
 
