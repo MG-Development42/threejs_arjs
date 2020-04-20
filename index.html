@@ -26,6 +26,19 @@
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
+				
+				renderer = new THREE.WebGLRenderer( { 
+					antialias: true,
+					truealpha: true,
+            				precision: 'mediump', } );
+				
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize1', onWindowResize, false );
 
 				//camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 100 );
 				//camera.position.set( - 5, 3, 10 );
@@ -140,7 +153,7 @@
 					model.position.z = 0;
             				model.position.x = 0;
             				model.position.y = 0;
-	    				model.scale.set(0.5,0.5,0.5);
+	    				model.scale.set(1,1,1);
 					
 					scene.add( model );
 
@@ -152,18 +165,7 @@
 
 				} );
 
-				renderer = new THREE.WebGLRenderer( { 
-					antialias: true,
-					truealpha: true,
-            				precision: 'mediump', } );
 				
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.outputEncoding = THREE.sRGBEncoding;
-				container.appendChild( renderer.domElement );
-
-				window.addEventListener( 'resize1', onWindowResize, false );
 
 				// stats
 				stats = new Stats();
