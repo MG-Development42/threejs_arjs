@@ -33,11 +33,18 @@
 					truealpha: true,
             				precision: 'mediump', } );
 				
-				renderer.setPixelRatio( window.devicePixelRatio );
+				//renderer.setPixelRatio( window.devicePixelRatio );
+				//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+				//renderer.setSize( window.innerWidth, window.innerHeight );
+				//renderer.outputEncoding = THREE.sRGBEncoding;
+				//container.appendChild( renderer.domElement );
+				
 				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.outputEncoding = THREE.sRGBEncoding;
-				container.appendChild( renderer.domElement );
+        			renderer.setSize( window.innerWidth, window.innerHeight );
+        			renderer.domElement.style.position = 'absolute'
+        			renderer.domElement.style.top = '0px'
+        			renderer.domElement.style.left = '0px'
+        			document.body.appendChild( renderer.domElement );
 
 				//window.addEventListener( 'resize1', onWindowResize, false );
 
