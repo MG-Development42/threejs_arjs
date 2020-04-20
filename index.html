@@ -16,6 +16,7 @@
 
 			var container, stats, clock, gui, mixer, actions, activeAction, previousAction;
 			var camera, scene, renderer, model, face;
+			var arToolkitSource;
 
 			var api = { state: 'Walking' };
 
@@ -70,7 +71,7 @@
         //          handle arToolkitSource
         ////////////////////////////////////////////////////////////////////////////////
 
-        var arToolkitSource = new THREEx.ArToolkitSource({
+         arToolkitSource = new THREEx.ArToolkitSource({
             sourceType : 'webcam',
             sourceWidth: 480,
             sourceHeight: 640,
