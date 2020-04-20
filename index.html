@@ -32,7 +32,7 @@
 				//camera.lookAt( new THREE.Vector3( 0, 2, 0 ) );
 					
 				scene = new THREE.Scene();
-				var camera = new THREE.Camera();
+				camera = new THREE.Camera();
         			scene.add(camera);
 				
 				
@@ -43,14 +43,16 @@
 
 				// lights
 
-				var light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-				light.position.set( 0, 20, 0 );
-				scene.add( light );
+				//var light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				//light.position.set( 0, 20, 0 );
+				//scene.add( light );
 
-				light = new THREE.DirectionalLight( 0xffffff );
-				light.position.set( 0, 20, 10 );
-				scene.add( light );
-				
+				//light = new THREE.DirectionalLight( 0xffffff );
+				//light.position.set( 0, 20, 10 );
+				//scene.add( light );
+
+			 light = new THREE.AmbientLight(0xffffff);
+        		 scene.add(light);
 	////////////////////////////////////////////////////////////////////////////////
         //          handle arToolkitSource
         ////////////////////////////////////////////////////////////////////////////////
