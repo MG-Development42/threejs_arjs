@@ -16,7 +16,7 @@
 
 			var container, stats, clock, gui, mixer, actions, activeAction, previousAction;
 			var camera, scene, renderer, model, face;
-			var arToolkitSource;
+			var arToolkitSource,arToolkitContext;
 
 			var api = { state: 'Walking' };
 
@@ -102,7 +102,7 @@
         ////////////////////////////////////////////////////////////////////////////////
 
         // create atToolkitContext
-        var arToolkitContext = new THREEx.ArToolkitContext({
+        arToolkitContext = new THREEx.ArToolkitContext({
             detectionMode: 'mono',
             canvasWidth: 480,
             canvasHeight: 640,
@@ -307,9 +307,9 @@
 
 				requestAnimationFrame( animate );
 				
-				//if (!arToolkitSource.ready) {
-                    		//return;
-                		//}
+				if (!arToolkitSource.ready) {
+                    		return;
+                		}
 
                			 arToolkitContext.update( arToolkitSource.domElement )
 
